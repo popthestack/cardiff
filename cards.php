@@ -18,13 +18,15 @@ $cards = array();
 $slug = $_GET["slug"];			// slug for card deck
 $mobile = $_GET["m"];			// mobile flag
 
-// Get the real file path for the card deck.
-$fileName = realpath(dirname(__FILE__) . '/' . $slug . '.text');
+// Get the real file path for the card deck
 
-// Make sure the card deck path is valid (ie. no '../../' in the slug),
-// as well as ensure that the file exists.
-if (strpos($fileName, dirname(__FILE__)) === 0 && file_exists($fileName)) {
-	$input = fopen($fileName, "r");
+$filename = realpath(dirname(__FILE__) . '/' . $slug . '.text');
+
+// Make sure the card deck path is valid (i.e., no '../../' in the slug),
+// and ensure that the file exists.
+
+if (strpos($filename, dirname(__FILE__)) === 0 && file_exists($filename)) {
+	$input = fopen($filename, "r");
 
 	$count = 1;
 
@@ -39,13 +41,12 @@ if (strpos($fileName, dirname(__FILE__)) === 0 && file_exists($fileName)) {
 			$side1 = SmartyPants(Markdown(trim($card[0])));
 			$side2 = SmartyPants(Markdown(trim($card[1])));
 
-			if ($side1 && side2) {
+			if ($side1 && $side2) {
 				$newCard = new Card($side1, $side2);
 
 				array_push($cards, $newCard);
 			}
 		}
-
 		$count++;
 	}
 }
