@@ -90,6 +90,15 @@ function slideCard(dir) {
 		// activate new card
 		new_card.children(".side1").addClass("active");
 	}
+	
+	//	Returns the scrollbar to the left to stop the cards from
+	//	desapearing from the screen after a lot of slides
+	$(document).scrollLeft(0);
+}
+
+// Toggle shuffle
+function toggleShuffle() {
+	window.location = $('#shuffle-button').attr('href');
 }
 
 // Catch keystrokes
@@ -122,6 +131,10 @@ function captureKeys() {
 				break;
 			case 74: // 'j'
 				flipCard();
+				break;
+				
+			case 83: // 's'
+				toggleShuffle();
 				break;
 		};
 	}, false);
@@ -184,13 +197,6 @@ $(document).ready(function() {
 
 			// resize the text
 			content.css("font-size", font_size + "px");
-
-			/*
-			// also reposition the text
-			var new_ypos = (WINDOW_HEIGHT / 2) - content.height();
-			content.css("position", "relative");
-			content.css("top", new_ypos + "px");
-			*/
 		});
 
 		// hide each card
