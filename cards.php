@@ -2,6 +2,8 @@
 
 include_once('lib/markdown.php');
 include_once('lib/smartypants.php');
+include_once('lib/sfyaml/sfYaml.php');
+include_once('lib/sfyaml/sfYamlParser.php');
 
 include_once('config.php');
 
@@ -18,39 +20,39 @@ class Card {
 $cards = array();
 
 $slug = $_GET["slug"];			// slug for card deck			
+
 $mobile = (array_key_exists('m', $_GET)) ? $_GET['m']: ""; // mobile flag
 $shuffle = (array_key_exists('shuffle', $_GET)) ? $_GET['shuffle']: ""; // shuffle flag
 
 // Get the real file path for the card deck
 
-$filename = realpath(dirname(__FILE__) . '/' . $slug . '.text');
+$filename = realpath(dirname(__FILE__) . '/' . $slug . '.deck');
 
 // Make sure the card deck path is valid (i.e., no '../../' in the slug),
 // and ensure that the file exists.
 
 if (strpos($filename, dirname(__FILE__)) === 0 && file_exists($filename)) {
-	$input = fopen($filename, "r");
-
-	$count = 1;
-
-	// read in the deck
-	while (!feof($input)) {
-		$line = fgets($input);
-
-		if ($count == 1) {
-			$title = trim($line);				// first line is title
-		} else if (trim($line) != "") {
-			$card = explode("|", $line);
-			$side1 = SmartyPants(Markdown(trim($card[0])));
-			$side2 = SmartyPants(Markdown(trim($card[1])));
-
-			if ($side1 && $side2) {
-				$newCard = new Card($side1, $side2);
-
-				array_push($cards, $newCard);
-			}
+	$yaml = new sfYamlParser();
+	$parsed_cards = $yaml->parse(file_get_contents($filename));
+	
+	$count = 0;
+	
+	foreach ($parsed_cards as $side1 => $side2) {
+		// Ignore any title variable. This'll have to do until I can make file_get_contents ignore the first line of the file so YAML can correctly parse the deck.
+		if ($count == 0 && ($side1 == "Title" || $side1 == "title")) {
+			$title = $side2;
+			continue;
 		}
-		$count++;
+		
+		$side1 = SmartyPants(Markdown($side1));
+		$side2 = SmartyPants(Markdown($side2));
+		
+		if ($side1 && $side2) {
+			$newCard = new Card($side1, $side2);
+
+			array_push($cards, $newCard);
+			$count++;
+		}
 	}
 }
 
